@@ -1,0 +1,45 @@
+service: pptx-generate-serverless
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.7
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource: '*'
+
+functions:
+  generate:
+    handler: handler.generate
+    timeout: 900
+    events:
+      - http:
+          cors: true
+          method: post
+          path: /poc/pptx/generate
+
+plugins:
+  - serverless-python-requirements
+
+resources:
+  Resources:
+    PocDocx:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName : poc-pptx
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
