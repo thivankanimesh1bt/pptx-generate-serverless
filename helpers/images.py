@@ -1,3 +1,5 @@
+import boto3
+import io
 from pptx import Presentation
 from pptx.util import Inches
 from pptx.util import Pt
@@ -24,7 +26,13 @@ def replace_images(slide, shape, replacements):
         height = pydash.get(object_value, "size.height")
         top = pydash.get(object_value, "size.top")
         width = pydash.get(object_value, "size.width")
+
+        s3_client = boto3.client('s3')
+
+        img = io.BytesIO()
+        s3_client.download_fileobj(Bucket='poc-pptx', Key='assets/'+url, Fileobj=img)
+        img.seek(0)
         
-        slide.shapes.add_picture(url, Inches(left), Inches(top), Inches(width) ,Inches(height) )
+        slide.shapes.add_picture(img, Inches(left), Inches(top), Inches(width) ,Inches(height) )
         replace_tags(str(f"+++IM {match} +++"), "", shape)
         
