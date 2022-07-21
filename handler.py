@@ -1,3 +1,4 @@
+import os
 import json
 import boto3
 from botocore.exceptions import ClientError
@@ -20,12 +21,13 @@ from helpers.tables import replace_tables, update_table_text, drow_tables
 from expressions.for_loop import looper
 from expressions.if_condition import _if
 
+POC_PPTX_BUCKET = os.environ.get("POC_PPTX_BUCKET")
+
 def generate(event, context):
-    BUCKET_NAME = 'poc-pptx'
     start_time = time.perf_counter ()
 
     s3_client = boto3.client('s3')
-    response = s3_client.get_object(Bucket=BUCKET_NAME, Key='task.pptx')
+    response = s3_client.get_object(Bucket=POC_PPTX_BUCKET, Key='task.pptx')
     data = response['Body'].read()
 
     print("-- response --")
@@ -34,7 +36,7 @@ def generate(event, context):
     print("-- data --")
     print(data)
 
-    # response = s3_client.generate_presigned_url('get_object', Params={'Bucket': BUCKET_NAME, 'Key': 'task.pptx'}, ExpiresIn=60)
+    # response = s3_client.generate_presigned_url('get_object', Params={'Bucket': POC_PPTX_BUCKET, 'Key': 'task.pptx'}, ExpiresIn=60)
     # print(response)
 
     f = open("/tmp/task.pptx", "wb")
@@ -888,7 +890,7 @@ def generate(event, context):
             prs.save(fileobj)
             fileobj.seek(0)
             PATH = 'given/path/output.pptx'
-            res = s3_client.upload_fileobj(fileobj, BUCKET_NAME, PATH)
+            res = s3_client.upload_fileobj(fileobj, POC_PPTX_BUCKET, PATH)
     except ClientError as e:
         logging.error(e)
         return False

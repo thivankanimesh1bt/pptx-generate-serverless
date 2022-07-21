@@ -1,3 +1,4 @@
+import os
 import boto3
 import io
 from pptx import Presentation
@@ -10,6 +11,8 @@ import re
 import pydash
 
 from helpers.utils import replace_tags, get_tag_content
+
+POC_PPTX_BUCKET = os.environ.get("POC_PPTX_BUCKET")
 
 def replace_images(slide, shape, replacements):
     pattern = r'\+\+\+IM (.*?) \+\+\+'
@@ -30,7 +33,7 @@ def replace_images(slide, shape, replacements):
         s3_client = boto3.client('s3')
 
         img = io.BytesIO()
-        s3_client.download_fileobj(Bucket='poc-pptx', Key='assets/'+url, Fileobj=img)
+        s3_client.download_fileobj(Bucket=POC_PPTX_BUCKET, Key='assets/'+url, Fileobj=img)
         img.seek(0)
         
         slide.shapes.add_picture(img, Inches(left), Inches(top), Inches(width) ,Inches(height) )
