@@ -21,10 +21,11 @@ from expressions.for_loop import looper
 from expressions.if_condition import _if
 
 def generate(event, context):
+    BUCKET_NAME = 'poc-pptx'
     start_time = time.perf_counter ()
 
     s3_client = boto3.client('s3')
-    response = s3_client.get_object(Bucket='poc-pptx', Key='task.pptx')
+    response = s3_client.get_object(Bucket=BUCKET_NAME, Key='task.pptx')
     data = response['Body'].read()
 
     print("-- response --")
@@ -33,7 +34,7 @@ def generate(event, context):
     print("-- data --")
     print(data)
 
-    # response = s3_client.generate_presigned_url('get_object', Params={'Bucket': 'poc-pptx', 'Key': 'task.pptx'}, ExpiresIn=60)
+    # response = s3_client.generate_presigned_url('get_object', Params={'Bucket': BUCKET_NAME, 'Key': 'task.pptx'}, ExpiresIn=60)
     # print(response)
 
     f = open("/tmp/task.pptx", "wb")
@@ -886,7 +887,8 @@ def generate(event, context):
         with BytesIO() as fileobj:
             prs.save(fileobj)
             fileobj.seek(0)
-            res = s3_client.upload_fileobj(fileobj, 'poc-pptx', 'output.pptx')
+            PATH = 'given/path/output.pptx'
+            res = s3_client.upload_fileobj(fileobj, BUCKET_NAME, PATH)
     except ClientError as e:
         logging.error(e)
         return False
